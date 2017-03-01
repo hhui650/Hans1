@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>
+	
+			var products = [];
+
+			products[ 0 ] = {
+				name: "Milk",
+				price: 2
+			};
+
+			products[ 1 ] = {
+				name: "Cereal",
+				price: 3
+			};
+
+			products[ 2 ] = {
+				name: "Bananas",
+				price: 2.5
+			};
+
+			products[ 3 ] = {
+				name: "Apples",
+				price: 4
+			};
+
+			function pageLoad( )
+			{
+			
+				for( var index = 0; index < products.length; index += 1 )
+				{
+					document.getElementById("items").innerHTML += "<li>" + products[ index ].name + " $" + products[ index ].price + "<input type='button' name='delete' value='delete' onclick='deleteItem(this)'></li>";
+				}
+
+				var customer = {
+					name: "John Doe",
+					address: "1234 Sesame Street",
+					city: "San Francisco",
+					state: "California",
+					zip: "94010"
+				};
+
+				document.getElementById("customerInfo").innerHTML += customer.name + "<br>" + customer.address + "<br>" +customer.city + ", " + customer.state + "<br>" + customer.zip;
+
+				showTotal( );
+
+			}
+
+			// Delete/hide the list item that contains the specified button
+			function deleteItem(button) {
+				var li = button.parentElement;
+
+				li.style.display = "none";
+
+				var index = li.parentElement.childNodes.indexOf( li );
+				products.splice( index, 1 );
+
+				showTotal( );
+			}
+
+			function showTotal(){
+				var total = 0;
+
+				// Loop through each product
+				for( var index = 0; index < products.length; index += 1 )
+				{
+					total += products[ index ].price;
+				}
+
+				// Add the tax
+				total = total * 1.1;
+				// Add the shipping
+				total += 5;
+
+				document.getElementById( "total" ).innerHTML = "Total: $" + total;
+			}
+			
+		</script>	
+	</head>
+	<body onload="pageLoad( )">
+
+		<h1>Groceries Total Page</h1>
+
+		<ul id="items"> 
+			
+		</ul>
+
+		<div id="total"></div>
+
+		<br>
+
+		<div id="customerInfo"></div>
+
+		<br>
+
+		<form id="form1">
+			Credit Card <input type="text" name="creditCard">
+			Expiration Date <input type="date" name="expiration">
+			<br>
+			<input type="submit" name="submit" value="submit">
+		</form>
+
+	</body>
+</html>
