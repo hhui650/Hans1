@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>
+			
+			function Order( customer, lineItems ) {
+				this.customer = customer;
+				this.lineItems = lineItems;
+
+
+				// Delete/hide the list item that contains the specified button
+				this.deleteItem = function( button ) {
+					var li = button.parentElement;
+
+					var index = 0;
+					var element = li.previousElementSibling;
+
+					// Count the number of previous siblings
+					while( element != null )
+					{
+						element = element.previousElementSibling;
+						index += 1;
+					}
+
+					// Delete the <li> element
+					li.style.display = "none";
+
+					order.lineItems[ index ].product.inCart = false;
+
+					showTotal( );
+				}
+
+
+			}
+
+			function LineItem( quantity, product ) {
+				this.quantity = quantity;
+				this.product = product;
+
+				this.insertRepresentationIntoULWithID = function( ID ) {
+					document.getElementById( ID ).innerHTML += 
+						"<li>" + this.product.name + " $" + this.product.price + " Quantity: " + this.quantity +
+						" <input type='button' name='delete' value='delete' onclick='order.deleteItem(this)'></li>";
+				}
+
+				// Encapsulate the quantity
+				this.getQuantity = function( ) {
+					return this.quantity;
+				}
+			}
+
+			function Product( name, price, inCart, description ) {
+				// Properties
+				this.name = name;
+				this.price = price;
+				this.inCart = inCart;
+				this.description = description;
+			}
+
+			function Customer( name, address, city, state, zipCode ) {
+				this.name = name;
+				this.address = address;
+				this.city = city;
+				this.state = state;
+				this.zipCode = zipCode;
+				this.insertRepresentationIntoDIVWithID = function( ){
+					document.getElementById("customerInfo").innerHTML += this.name + "<br>" + this.address + "<br>" + this.city + ", " + this.state + "<br>" + this.zipCode;
+				};
+			}
+
+			var order = new Order( new Customer( "John Doe", "1234 Sesame Street", "San Francisco", "California", "94010" ), 
+				[ 
+					new LineItem( 2, new Product( "Milk", 2, true, "2% milk" ) ),
+					new LineItem( 1, new Product( "Cereal", 3, true, "Whole grain" ) ),
+					new LineItem( 3, new Product( "Bananas", 2.5, true, "Organic" ) ),
+					new LineItem( 5, new Product( "Apples", 4, true, "Red" ) )
+				] );
+
+			function pageLoad( )
+			{
+				/*
+				// These variables are all related (they belong to a customer). We should group them in a customer object
+				var customerName = "John Doe";
+				var customerAddress = "1234 Sesame Street";
+				var customerCity = "San Francisco";
+				var customerState = "California";
+				var customerZip = "94010";
+				*/
+
+				for( var index = 0; index < order.lineItems.length; index += 1 )
+				{
+					order.lineItems[ index ].insertRepresentationIntoULWithID( "items" );
+				}
+
+				order.customer.insertRepresentationIntoDIVWithID( "customerInfo" );
+
+				showTotal( );
+
+			}
+
+			function showTotal( ){
+				var total = 0;
+
+				// Loop through each product
+				for( var index = 0; index < order.lineItems.length; index += 1 )
+				{
+					if( order.lineItems[ index ].product.inCart == true )
+						total += order.lineItems[ index ].product.price * order.lineItems[ index ].getQuantity( );
+				}
+
+				/*
+				total += Products[ index ].price;
+
+				index += 1;
+
+				total += Products[ index ].price;
+
+				index += 1;
+
+				total += Products[ index ].price;
+
+				index += 1;
+
+				total += Products[ index ].price;
+				*/
+
+				// Add the tax
+				total = total * 1.1;
+				// Add the shipping
+				total += 5;
+
+				document.getElementById( "total" ).innerHTML = "Total: $" + total;
+			}
+			
+		</script>	
+	</head>
+	<body onload="pageLoad( )">
+
+		<h1>Groceries Total Page</h1>
+
+		<ul id="items"> 
+			
+		</ul>
+
+		<div id="total"></div>
+
+		<br>
+
+		<div id="customerInfo"></div>
+
+		<br>
+
+		<form id="form1">
+			Credit Card <input type="text" name="creditCard">
+			Expiration Date <input type="date" name="expiration">
+			<br>
+			<input type="submit" name="submit" value="submit">
+		</form>
+
+	</body>
+</html>
