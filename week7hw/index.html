@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>
+
+			// Try/catch: a mechanism for catching exceptions/errors and handling them
+
+			function Order( customer, lineItems ) {
+
+				try {
+
+					this.customer = customer;
+					this.lineItems = lineItems;
+
+					// Mutator methods
+					this.setCustomer = function( customer ){ this.customer = customer; }
+					this.setLineItems = function( lineItems ){ this.lineItems = lineItems; }
+					// Accessor methods
+					this.getCustomer = function( ){ return this.customer; }
+					this.getLineItems = function( ){ return this.lineItems; }
+
+
+					// Delete/hide the list item that contains the specified button
+					this.deleteItem = function( button ) {
+						var li = button.parentElement;
+
+						var index = 0;
+						var element = li.previousElementSibling;
+
+						// Count the number of previous siblings
+						while( element != null )
+						{
+							element = element.previousElementSibling;
+							index += 1;
+						}
+
+						// Delete the <li> element
+						li.style.display = "none";
+
+						order.getLineItems( )[ index ].getProduct( ).setInCart( false );
+
+						showTotal( );
+					}
+				} catch( error ) {
+					console.log( error.message );
+				}
+
+			}
+
+			function LineItem( quantity, product ) {
+
+				try {
+					this.quantity = quantity;
+					this.product = product;
+
+					// Mutator methods
+					this.setQuantity = function( quantity ){ this.quantity = quantity; }
+					this.setProduct = function( product ){ this.product = product; }
+					// Accessor methods
+					this.getQuantity = function( ){ return this.quantity; }
+					this.getProduct = function( ){ return this.product; }
+
+					this.insertRepresentationIntoULWithID = function( ID ) {
+						document.getElementById( ID ).innerHTML += 
+							"<li>" + this.getProduct( ).getName( ) + " $" + this.getProduct( ).getPrice( ) + " Quantity: " + this.getQuantity( ) +
+							" <input type='button' name='delete' value='delete' onclick='order.deleteItem(this)'></li>";
+					}
+				} catch( error ) {
+					console.log( error.message );
+				}
+			}
+
+			function Product( name, price, inCart, description ) {
+				try {
+					// Properties
+					this.name = name;
+					this.price = price;
+					this.inCart = inCart;
+					this.description = description;
+
+					// Mutator methods
+					this.setName = function( name ){ this.name = name; }
+					this.setPrice = function( price ){ this.price = price; }
+					this.setInCart = function( inCart ){ this.inCart = inCart; }
+					this.setDescription = function( description ){ this.description = description; }
+					// Accessor methods
+					this.getName = function( ){ return this.name; }
+					this.getPrice = function( ){ return this.price; }
+					this.getInCart = function( ){ return this.inCart; }
+					this.getDescription = function( ){ return this.description; }
+				} catch( error ) {
+					console.log( error.message );
+				}
+			}
+
+			function Customer( name, address, city, state, zipCode ) {
+				try {
+					this.name = name;
+					this.address = address;
+					this.city = city;
+					this.state = state;
+					this.zipCode = zipCode;
+
+					// Mutator methods
+					this.setName = function( name ){ this.name = name; }
+					this.setAddress = function( address ){ this.address = address; }
+					this.setCity = function( city ){ this.city = city; }
+					this.setState = function( state ){ this.state = state; }
+					this.setZipCode = function( zipCode ){ this.zipCode = zipCode; }
+					// Accessor methods
+					this.getName = function( ){ return this.name; }
+					this.getAddress = function( ){ return this.address; }
+					this.getCity = function( ){ return this.city; }
+					this.getState = function( ){ return this.state; }
+					this.getZipCode = function( ){ return this.zipCode; }
+
+					this.insertRepresentationIntoDIVWithID = function( ){
+						document.getElementById("customerInfo").innerHTML += this.getName( ) + "<br>" + this.getAddress( ) + "<br>" + this.getCity( ) + ", " + this.getState( ) + "<br>" + this.getZipCode( );
+					};
+				} catch( error ) {
+					console.log( error.message );
+				}
+			}
+
+			function loadDoc( ) {
+				try {
+					var XHR = new XMLHttpRequest( );
+					XHR.onreadystatechange = function( ) {
+						if( this.readyState == 4 && this.status == 200 ) {
+							alert( this.responseText );
+						}
+					};
+					XHR.open( "GET", "orders.json", true );
+					XHR.send( );
+				} catch( error ) {
+					console.log( error.message );
+				}
+			}
+
+			loadDoc( );
+
+			var order = new Order( new Customer( "John Doe", "1234 Sesame Street", "San Francisco", "California", "94010" ), 
+				[ 
+					new LineItem( 2, new Product( "Milk", 2, true, "2% milk" ) ),
+					new LineItem( 1, new Product( "Cereal", 3, true, "Whole grain" ) ),
+					new LineItem( 3, new Product( "Bananas", 2.5, true, "Organic" ) ),
+					new LineItem( 5, new Product( "Apples", 4, true, "Red" ) )
+				] );
+
+			function pageLoad( )
+			{
+				
+				for( var index = 0; index < order.getLineItems( ).length; index += 1 )
+				{
+					order.getLineItems( )[ index ].insertRepresentationIntoULWithID( "items" );
+				}
+
+				order.getCustomer( ).insertRepresentationIntoDIVWithID( "customerInfo" );
+
+				showTotal( );
+
+			}
+
+			function showTotal( ){
+				var total = 0;
+
+				// Loop through each product
+				for( var index = 0; index < order.getLineItems( ).length; index += 1 )
+				{
+					if( order.getLineItems( )[ index ].getProduct( ).getInCart( ) == true )
+						total += order.getLineItems( )[ index ].getProduct( ).getPrice( ) * order.getLineItems( )[ index ].getQuantity( );
+				}
+
+				// Add the tax
+				total = total * 1.1;
+				// Add the shipping
+				total += 5;
+
+				document.getElementById( "total" ).innerHTML = "Total: $" + total;
+			}
+			
+		</script>	
+	</head>
+	<body onload="pageLoad( )">
+
+		<h1>Groceries Total Page</h1>
+
+		<ul id="items"> 
+			
+		</ul>
+
+		<div id="total"></div>
+
+		<br>
+
+		<div id="customerInfo"></div>
+
+		<br>
+
+		<form id="form1">
+			Credit Card <input type="text" name="creditCard">
+			Expiration Date <input type="date" name="expiration">
+			<br>
+			<input type="submit" name="submit" value="submit">
+		</form>
+
+	</body>
+</html>
