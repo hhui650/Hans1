@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+    <script>
+ 
+        function Order(customer, lineItems) {
+
+            try {
+
+                this.customer = customer;
+                this.lineItems = lineItems;
+
+                // Mutator methods
+                this.setCustomer = function(customer) {
+                    this.customer = customer;
+                }
+                this.setLineItems = function(lineItems) {
+                    this.lineItems = lineItems;
+                }
+                // Accessor methods
+                this.getCustomer = function() {
+                    return this.customer;
+                }
+                this.getLineItems = function() {
+                    return this.lineItems;
+                }
+
+
+                // Delete/hide the list item that contains the specified button
+                this.deleteItem = function(button) {
+                    var li = button.parentElement;
+
+                    var index = 0;
+                    var element = li.previousElementSibling;
+
+                    // Count the number of previous siblings
+                    while (element != null) {
+                        element = element.previousElementSibling;
+                        index += 1;
+                    }
+
+                    // Delete the <li> element
+                    li.style.display = "none";
+
+                    order.getLineItems()[index].getProduct().setInCart(false);
+
+                    showTotal();
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+
+        }
+
+        function LineItem(quantity, product) {
+
+            try {
+                this.quantity = quantity;
+                this.product = product;
+
+                // Mutator methods
+                this.setQuantity = function(quantity) {
+                    this.quantity = quantity;
+                }
+                this.setProduct = function(product) {
+                    this.product = product;
+                }
+                // Accessor methods
+                this.getQuantity = function() {
+                    return this.quantity;
+                }
+                this.getProduct = function() {
+                    return this.product;
+                }
+
+                this.insertRepresentationIntoULWithID = function(ID, index) {
+                	document.getElementById(ID).innerHTML += 
+                	`<div class="col-md-12">
+			    		<div class="col-md-4">`
+			    			+this.getProduct().getName()+
+			    		`</div>
+			    		<div class="col-md-4">`
+			    			+'$'+this.getProduct().getPrice()+	
+			    		`</div>
+			    		<div class="col-md-4">`			    			
+			    			+getDropDown(this.getQuantity(), index)+
+			    		`</div>
+			    	</div>`;
+                    // document.getElementById(ID).innerHTML +=
+                    //     "<li>" + this.getProduct().getName() + " $" + this.getProduct().getPrice() + " Quantity: " + this.getQuantity() +
+                    //     " <input type='button' name='delete' value='delete' onclick='order.deleteItem(this)'></li>";
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        function Product(name, price, inCart, description) {
+            try {
+                // Properties
+                this.name = name;
+                this.price = price;
+                this.inCart = inCart;
+                this.description = description;
+
+                // Mutator methods
+                this.setName = function(name) {
+                    this.name = name;
+                }
+                this.setPrice = function(price) {
+                    this.price = price;
+                }
+                this.setInCart = function(inCart) {
+                    this.inCart = inCart;
+                }
+                this.setDescription = function(description) {
+                    this.description = description;
+                }
+                // Accessor methods
+                this.getName = function() {
+                    return this.name;
+                }
+                this.getPrice = function() {
+                    return this.price;
+                }
+                this.getInCart = function() {
+                    return this.inCart;
+                }
+                this.getDescription = function() {
+                    return this.description;
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        function Customer(name, address, city, state, zipCode) {
+            try {
+                this.name = name;
+                this.address = address;
+                this.city = city;
+                this.state = state;
+                this.zipCode = zipCode;
+
+                // Mutator methods
+                this.setName = function(name) {
+                    this.name = name;
+                }
+                this.setAddress = function(address) {
+                    this.address = address;
+                }
+                this.setCity = function(city) {
+                    this.city = city;
+                }
+                this.setState = function(state) {
+                    this.state = state;
+                }
+                this.setZipCode = function(zipCode) {
+                    this.zipCode = zipCode;
+                }
+                // Accessor methods
+                this.getName = function() {
+                    return this.name;
+                }
+                this.getAddress = function() {
+                    return this.address;
+                }
+                this.getCity = function() {
+                    return this.city;
+                }
+                this.getState = function() {
+                    return this.state;
+                }
+                this.getZipCode = function() {
+                    return this.zipCode;
+                }
+
+                this.insertRepresentationIntoDIVWithID = function() {
+                    document.getElementById("customerInfo").innerHTML += this.getName() + "<br>" + this.getAddress() + "<br>" + this.getCity() + ", " + this.getState() + "<br>" + this.getZipCode();
+                };
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        function pageLoad() {
+            var myFirstPromise = new Promise((resolve, reject) => {
+     
+                resolve(getData());
+            });
+
+            myFirstPromise.then((order) => {
+                for (var index = 0; index < order.getLineItems().length; index += 1) {
+                    order.getLineItems()[index].insertRepresentationIntoULWithID("items", index);
+                }
+
+                order.getCustomer().insertRepresentationIntoDIVWithID("customerInfo");
+
+                showTotal();
+            });
+
+            myFirstPromise.catch((message) => {
+                console.log(message);
+                alert("Error loading data.js");
+            });
+
+            
+        }
+
+        function showTotal() {
+            var total = 0;
+
+            // Loop through each product
+            for (var index = 0; index < getData().getLineItems().length; index += 1) {
+                if (getData().getLineItems()[index].getProduct().getInCart() == true)
+                    total += getData().getLineItems()[index].getProduct().getPrice() * getData().getLineItems()[index].getQuantity();
+            }
+
+            
+            total = total * 1.1;
+            // Add the shipping
+            total += 5;
+
+            document.getElementById("total").innerHTML = "<b>Total:</b> $" + total;
+        }
+
+        // global data
+        var data = new Order(
+    		new Customer("John Doe", "1234 Sesame Street", "San Francisco", "California", "94010"),
+    		[
+	            new LineItem(2, new Product("Milk", 2, true, "2% milk")),
+	            new LineItem(1, new Product("Cereal", 3, true, "Whole grain")),
+	            new LineItem(3, new Product("Bananas", 2.5, true, "Organic")),
+	            new LineItem(5, new Product("Apples", 4, true, "Red"))
+	        ]
+        );
+
+        function getData(){
+        	return 	data;
+        }
+
+        function setData(index, selectObject){
+        	var qty = selectObject.value;
+        	data.getLineItems()[index].setQuantity(qty);
+        	showTotal();
+        }
+
+        function getDropDown(selected, index){
+        	/*
+				<select>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+				</select>
+        	*/
+        	var str = '<select onchange="setData('+index+',this)">';
+        	for(var i=1;i<11;i++){
+        		if(i==selected){
+        			str += '<option selected value="'+i+'">'+i+'</option>';
+        		}
+        		else{
+        			str += '<option value="'+i+'">'+i+'</option>';
+        		}
+        	}
+        	str += '</select>';
+        	return str;
+        }
+        
+    </script>
+
+    <script src=""></script>
+</head>
+
+<body onload="pageLoad( )">
+
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Hans</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Cart</a></li>
+				<li><a href="#">Resume</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container">
+	    <h1><center>Groceries Total Page</center></h1>
+	    <div class="col-md-12">
+	    	<div class="col-md-7 well">
+	    		<div id="items">
+	    			<div class="col-md-12">
+			    		<div class="col-md-4">
+			    			<b>Product</b>
+			    		</div>
+			    		<div class="col-md-4">
+			    			<b>Price</b>
+			    		</div>
+			    		<div class="col-md-4">
+			    			<b>Quantity</b>
+			    		</div>
+			    	</div>
+	    		</div>	
+	    	</div>
+	    	<div class="col-md-2"></div>
+	    	<div class="col-md-3 well" style="border-radius: 20px">
+	    		<b>Customer Info</b>
+				<div id="customerInfo"></div>
+				<br><br>
+				<div id="total"></div>
+	    	</div>
+	    </div>
+	    <br>
+	    <form id="form1">
+	        Credit Card <input type="text" name="creditCard"> Expiration Date <input type="date" name="expiration">
+	        <br>
+	        <input class="bootstrap-button" type="submit" name="submit" value="submit">
+	    </form>
+    </div>
+
+</body>
+
+</html>
