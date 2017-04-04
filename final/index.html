@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="icon" href="http://holub.com/favicon.ico">
+    <style type="text/css">
+        @font-face {
+            font-family: 'Ek Mukta';
+            src: url(https://fonts.googleapis.com/css?family=Ek+Mukta);
+        }
+
+        body {
+            font-family: 'Ek Mukta';
+            src: url(https://fonts.googleapis.com/css?family=Ek+Mukta);
+            font-size: 18px;
+        }
+    </style>
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script>
+ 
+        function Order(customer, lineItems) {
+
+            try {
+
+                this.customer = customer;
+                this.lineItems = lineItems;
+
+                // Mutator methods
+                this.setCustomer = function(customer) {
+                    this.customer = customer;
+                }
+                this.setLineItems = function(lineItems) {
+                    this.lineItems = lineItems;
+                }
+                // Accessor methods
+                this.getCustomer = function() {
+                    return this.customer;
+                }
+                this.getLineItems = function() {
+                    return this.lineItems;
+                }
+
+
+                // Delete/hide the list item that contains the specified button
+                this.deleteItem = function(button) {
+                    var li = button.parentElement;
+
+                    var index = 0;
+                    var element = li.previousElementSibling;
+
+                    // Count the number of previous siblings
+                    while (element != null) {
+                        element = element.previousElementSibling;
+                        index += 1;
+                    }
+
+                    // Delete the <li> element
+                    li.style.display = "none";
+
+                    order.getLineItems()[index].getProduct().setInCart(false);
+
+                    showTotal();
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+
+        }
+
+        function LineItem(quantity, product) {
+
+            try {
+                this.quantity = quantity;
+                this.product = product;
+
+                // Mutator methods
+                this.setQuantity = function(quantity) {
+                    this.quantity = quantity;
+                }
+                this.setProduct = function(product) {
+                    this.product = product;
+                }
+                // Accessor methods
+                this.getQuantity = function() {
+                    return this.quantity;
+                }
+                this.getProduct = function() {
+                    return this.product;
+                }
+
+                this.insertRepresentationIntoULWithID = function(ID, index) {
+                	$('#'+ID).append( 
+                	`<div class="col-md-12">
+			    		<div class="col-md-4">`
+			    			+this.getProduct().getName()+
+			    		`</div>
+			    		<div class="col-md-4">`
+			    			+'$'+this.getProduct().getPrice()+	
+			    		`</div>
+			    		<div class="col-md-4">`			    			
+			    			+getDropDown(this.getQuantity(), index)+
+			    		`</div>
+			    	</div>`);
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        function Product(name, price, inCart, description) {
+            try {
+                // Properties
+                this.name = name;
+                this.price = price;
+                this.inCart = inCart;
+                this.description = description;
+
+                // Mutator methods
+                this.setName = function(name) {
+                    this.name = name;
+                }
+                this.setPrice = function(price) {
+                    this.price = price;
+                }
+                this.setInCart = function(inCart) {
+                    this.inCart = inCart;
+                }
+                this.setDescription = function(description) {
+                    this.description = description;
+                }
+                // Accessor methods
+                this.getName = function() {
+                    return this.name;
+                }
+                this.getPrice = function() {
+                    return this.price;
+                }
+                this.getInCart = function() {
+                    return this.inCart;
+                }
+                this.getDescription = function() {
+                    return this.description;
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        function Customer(name, address, city, state, zipCode) {
+            try {
+                this.name = name;
+                this.address = address;
+                this.city = city;
+                this.state = state;
+                this.zipCode = zipCode;
+
+                // Mutator methods
+                this.setName = function(name) {
+                    this.name = name;
+                }
+                this.setAddress = function(address) {
+                    this.address = address;
+                }
+                this.setCity = function(city) {
+                    this.city = city;
+                }
+                this.setState = function(state) {
+                    this.state = state;
+                }
+                this.setZipCode = function(zipCode) {
+                    this.zipCode = zipCode;
+                }
+                // Accessor methods
+                this.getName = function() {
+                    return this.name;
+                }
+                this.getAddress = function() {
+                    return this.address;
+                }
+                this.getCity = function() {
+                    return this.city;
+                }
+                this.getState = function() {
+                    return this.state;
+                }
+                this.getZipCode = function() {
+                    return this.zipCode;
+                }
+
+                this.insertRepresentationIntoDIVWithID = function() {
+                    $("#customerInfo").append(this.getName() + "<br>" + this.getAddress() + "<br>" + this.getCity() + ", " + this.getState() + "<br>" + this.getZipCode()); 
+                };
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        function pageLoad() {
+            var myFirstPromise = new Promise((resolve, reject) => {
+     
+                resolve(getData());
+            });
+
+            myFirstPromise.then((order) => {
+                for (var index = 0; index < order.getLineItems().length; index += 1) {
+                    order.getLineItems()[index].insertRepresentationIntoULWithID("items", index);
+                }
+
+                order.getCustomer().insertRepresentationIntoDIVWithID("customerInfo");
+
+                showTotal();
+            });
+
+            myFirstPromise.catch((message) => {
+                console.log(message);
+                alert("Error loading data.js");
+            });
+
+            
+        }
+
+        function showTotal() {
+            var total = 0;
+
+            // Loop through each product
+            for (var index = 0; index < getData().getLineItems().length; index += 1) {
+                if (getData().getLineItems()[index].getProduct().getInCart() == true)
+                    total += getData().getLineItems()[index].getProduct().getPrice() * getData().getLineItems()[index].getQuantity();
+            }
+
+
+            // 10% tax
+            $("#tax").html(
+                `<div class="col-md-12">
+                    <div class="col-md-6">
+                        <b>Tax<b>
+                    </div>
+                    <div class="col-md-6">
+                        <b>$`+(total*0.1).toFixed(2)+`<b>
+                    </div>
+                </div>`
+            );
+            total = total * 1.1;
+            // Add the shipping
+            total += 5;
+            total = total.toFixed(2);
+
+            $('#shipping').html(
+                `<div class="col-md-12">
+                    <div class="col-md-6">
+                        <b>Shipping<b>
+                    </div>
+                    <div class="col-md-6">
+                        <b>$5.00<b>
+                    </div>
+                </div>`
+            );
+
+            $('#total').html(
+                `<div class="col-md-12">
+                    <div class="col-md-6">
+                        <b>Total<b>
+                    </div>
+                    <div class="col-md-6">
+                        <b>$`+total+`<b>
+                    </div>
+                </div>`
+            );
+        }
+
+        // global data
+        var data = new Order(
+    		new Customer("John Doe", "1234 Sesame Street", "San Francisco", "California", "94010"),
+    		[
+	            new LineItem(2, new Product("Milk", 2, true, "2% milk")),
+	            new LineItem(1, new Product("Cereal", 3, true, "Whole grain")),
+	            new LineItem(3, new Product("Bananas", 2.5, true, "Organic")),
+	            new LineItem(5, new Product("Apples", 4, true, "Red"))
+	        ]
+        );
+
+        function getData(){
+        	return 	data;
+        }
+
+        function setData(index, selectObject){
+        	var qty = selectObject.value;
+        	data.getLineItems()[index].setQuantity(qty);
+        	showTotal();
+        }
+
+        function getDropDown(selected, index){
+        	/*
+				<select>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+				</select>
+        	*/
+        	var str = '<select onchange="setData('+index+',this)">';
+        	for(var i=0;i<11;i++){
+        		if(i==selected){
+        			str += '<option selected value="'+i+'">'+i+'</option>';
+        		}
+        		else{
+        			str += '<option value="'+i+'">'+i+'</option>';
+        		}
+        	}
+        	str += '</select>';
+        	return str;
+        }
+        
+    </script>
+
+    <script src=""></script>
+</head>
+
+<body onload="pageLoad( )">
+
+	<nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button data-target="#collapsibleDiv" data-toggle="collapse" class="navbar-toggle collapsed" type="button">       
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Hans</a>
+            </div>
+            <div id="collapsibleDiv" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="index.html">Cart</a></li>
+                    <li><a href="resume.html">Resume</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+	<div class="container">
+	    <h1><center>Grocery Checkout</center></h1>
+	    <div class="col-sm-12">
+	    	<div class="col-sm-7">
+                <div class="col-sm-12 well">
+                    <div id="items">
+                        <div class="col-sm-12">
+                            <div class="col-sm-4">
+                                <b>Product</b>
+                            </div>
+                            <div class="col-sm-4">
+                                <b>Price</b>
+                            </div>
+                            <div class="col-sm-4">
+                                <b>Quantity</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="well">
+                        <form id="form1">
+                            <label>Credit Card</label>
+                            <input type="text" class="form-control" name="creditCard">
+                            <br>
+                            <label>Expiration Date</label>
+                            <input type="date" name="expiration" class="form-control">
+                            <br>
+                            <input class="btn btn-primary" type="submit" name="submit" value="submit">
+                        </form>
+                    </div>
+                </div>
+	    	</div>
+	    	<div class="col-sm-2"></div>
+	    	<div class="col-sm-3 well" style="border-radius: 20px">
+	    		<b>Customer Info</b>
+				<div id="customerInfo"></div>
+				<br><br>
+                <div id="tax"></div>
+                <div id="shipping"></div>
+				<div id="total"></div>
+	    	</div>
+	    </div>
+	    <br>
+        
+    </div>
+
+</body>
+
+</html>
